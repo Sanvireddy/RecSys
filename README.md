@@ -164,3 +164,23 @@ For the Two-Tower notebook, install FAISS before running:
 ```bash
 pip install faiss-cpu
 ```
+## Future Considerations (RecSys / Two-Tower)
+
+- **Hard-negative mining.** Training uses in-batch negatives plus randomly
+  sampled unseen items — not hard negatives. Mining negatives the model
+  currently scores too highly would sharpen ranking discrimination.
+- **Retrieval only, no re-ranking stage.** The two-tower model does candidate
+  retrieval; adding a second-stage cross-encoder re-ranker over the top-K would
+  improve precision at the top of the list.
+- **Offline evaluation only.** Metrics are HR@K / NDCG@K on a held-out
+  interaction (leave-one-out). There's no online/A-B validation, and offline
+  metrics don't fully capture real engagement — the held-out "next item" is a
+  noisy label, since a user is often eligible to like many items, not just the
+  one they happened to watch next.
+- **Limited features / cold-start.** Only side features (age bucket, genres)
+  supplement the IDs. Richer signals (user interaction sequences, text, temporal
+  features) would help, and cold-start for brand-new users/items is not handled
+  beyond those side features.
+- **In-batch negatives introduce popularity bias.** Popular items appear as
+  in-batch negatives more often, which can skew training. A sampled-softmax
+  logQ correction (or popularity-debiased sampling) would address this.
